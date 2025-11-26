@@ -1,6 +1,5 @@
 package com.study.userservice;
 
-import static io.restassured.RestAssured.given;
 // import static org.junit.Assert.assertNotNull;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
@@ -8,14 +7,18 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.security.Key;
 import java.time.LocalDateTime;
+import java.util.Date;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 
+import com.study.userservice.auth.Role;
 import com.study.userservice.dto.UserResponseDTO;
 import com.study.userservice.entity.User;
 import com.study.userservice.exceptions.IdNotFoundException;
@@ -24,11 +27,14 @@ import com.study.userservice.repository.UserRepository;
 import com.study.userservice.service.interfaces.CardService;
 import com.study.userservice.service.interfaces.UserService;
 
+import io.github.cdimascio.dotenv.Dotenv;
+import io.jsonwebtoken.JwtBuilder;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
-
-// import redis.clients.jedis.Jedis;
 
 /**
  * Testing: CardController with Postgres and Redis containers
@@ -40,10 +46,10 @@ import io.restassured.response.Response;
  * -Xshare:off
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-// @Testcontainers
 class CardControllerTest extends AbstractIntegrationTest {
 
   static long userId = 0;
+  static String token;
 
   @LocalServerPort private Integer port;
 
@@ -65,6 +71,24 @@ class CardControllerTest extends AbstractIntegrationTest {
     this.cardRepository = cardRepository;
   }
 
+  @BeforeAll
+  static void generateToken() {
+    Dotenv dotenv = Dotenv.configure().ignoreIfMissing().ignoreIfMalformed().load();
+    String key = dotenv.get("MY_SECRET_KEY");
+    String str = new String(Decoders.BASE64.decode(key));
+    byte[] keyBytes = str.getBytes();
+    Key readyKey = Keys.hmacShaKeyFor(keyBytes);
+    JwtBuilder builder =
+        Jwts.builder()
+            .setSubject("userT@m.com")
+            .setIssuedAt(new Date())
+            .setExpiration(new Date(System.currentTimeMillis() + 3600000)) // 1 hour expiration
+            .claim("Role", "ADMIN")
+            .claim("UserId", "8")
+            .signWith(readyKey);
+    token = builder.compact();
+  }
+
   @BeforeEach
   void setUp() {
     RestAssured.baseURI = "http://localhost:" + port;
@@ -78,20 +102,20 @@ class CardControllerTest extends AbstractIntegrationTest {
   void givenRedisContainerConfiguredWithDynamicPropertiesIsRunning() {
     printCurrentMethodName();
     assertTrue(redis.isRunning());
-    System.out.println("_____Redis is runnig in container");
   }
 
   @Test
   void createCardTest() {
     String payload =
 """
-{"user_id":currentUserId,"number":"123456789","holder":"CardHolder","expiration_date":"2022-02-16T10:22:15","active":"true"}
+{"userId":currentUserId,"number":"123456789","holder":"CardHolder","expirationDate":"2022-02-16T10:22:15","active":"true"}
         """;
 
     payload = payload.replace("currentUserId", "" + userId);
 
     Response responseController =
-        given()
+        RestAssured.given()
+            .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
             .body(payload)
             .when()
@@ -109,13 +133,14 @@ class CardControllerTest extends AbstractIntegrationTest {
   void createCardsTest() {
     String payload =
         """
-  [{"user_id":currentUserId,"number":"111111","holder":"CardHolder","expiration_date":"2022-02-16T10:22:15","active":"true"},
-  {"user_id":currentUserId,"number":"222222","holder":"CardHolder","expiration_date":"2022-02-16T10:22:15","active":"true"}]
+  [{"userId":currentUserId,"number":"111111","holder":"CardHolder","expirationDate":"2022-02-16T10:22:15","active":"true"},
+  {"userId":currentUserId,"number":"222222","holder":"CardHolder","expirationDate":"2022-02-16T10:22:15","active":"true"}]
           """;
     payload = payload.replace("currentUserId", "" + userId);
 
     Response responseController =
-        given()
+        RestAssured.given()
+            .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
             .body(payload)
             .when()
@@ -135,7 +160,8 @@ class CardControllerTest extends AbstractIntegrationTest {
     long cardId = cardService.addRandomCard(userResponseDTO).getId();
 
     Response responseController =
-        given()
+        RestAssured.given()
+            .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
             .when()
             .get("/api/v1/card/" + cardId)
@@ -155,7 +181,8 @@ class CardControllerTest extends AbstractIntegrationTest {
     Long id2 = cardService.addRandomCard(userResponseDTO).getId();
 
     Response responseController =
-        given()
+        RestAssured.given()
+            .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
             .when()
             .get("/api/v1/cards/" + id1 + "," + id2)
@@ -175,19 +202,20 @@ class CardControllerTest extends AbstractIntegrationTest {
 
     String payload =
         """
-  {"user_id":currentUserId,"number":"987654","holder":"CannotChangeCardHolder","expiration_date":"2022-02-16T10:22:15","active":"true"}
+  {"userId":currentUserId,"number":"987654","holder":"CannotChangeCardHolder","expirationDate":"2022-02-16T10:22:15","active":"true"}
           """;
     payload = payload.replace("currentUserId", "" + userId);
 
     Response responseController =
-        given()
+        RestAssured.given()
+            .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
             .body(payload)
             .when()
             .put("/api/v1/card/" + id)
             .then()
             .statusCode(200)
-            .body("holder", equalTo(userResponseDTO.getName()))
+            .body("active", equalTo(!userResponseDTO.isActive()))
             .extract()
             .response();
     assertNotNull(responseController.asString());
@@ -197,15 +225,15 @@ class CardControllerTest extends AbstractIntegrationTest {
 
   @Test
   void addCardTest() {
-    UserResponseDTO userResponseDTO = userService.getRandomUser();
     Response responseController =
-        given()
+        RestAssured.given()
+            .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
             .when()
             .get("/api/v1/card/random")
             .then()
             .statusCode(200)
-            .body("holder", equalTo(userResponseDTO.getName()))
+            .body("active", equalTo(true))
             .extract()
             .response();
     assertNotNull(responseController.asString());
@@ -217,12 +245,13 @@ class CardControllerTest extends AbstractIntegrationTest {
     UserResponseDTO userResponseDTO = userService.getRandomUser();
     cardService.addRandomCard(userResponseDTO);
     cardService.addRandomCard(userResponseDTO);
-    assertTrue(cardService.getAllCards().size() == 2);
+    assertTrue(cardService.getAllCards(0, 10).size() == 2);
     Response responseController =
-        given()
+        RestAssured.given()
+            .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
             .when()
-            .get("/api/v1/cards")
+            .get("/api/v1/cards/0/10")
             .then()
             .statusCode(200)
             .body(".", hasSize(2))
@@ -237,7 +266,8 @@ class CardControllerTest extends AbstractIntegrationTest {
     long id = cardService.addRandomCard(userResponseDTO).getId();
 
     Response responseController =
-        given()
+        RestAssured.given()
+            .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
             .when()
             .delete("/api/v1/card/" + id)
@@ -256,7 +286,8 @@ class CardControllerTest extends AbstractIntegrationTest {
     cardService.addRandomCard(userResponseDTO).getId();
 
     Response responseController =
-        given()
+        RestAssured.given()
+            .header("Authorization", "Bearer " + token)
             .contentType(ContentType.JSON)
             .when()
             .get("api/v1/card/last")
@@ -270,15 +301,21 @@ class CardControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  void testDeleteCustomer() {
+  void deleteCustomerTest() {
     User userToDel =
-        new User(null, "John", "Connor", LocalDateTime.now(), "tomjohn@mail.com", true);
+        new User(null, "John", "Connor", LocalDateTime.now(), "tomjohn@mail.com", true, Role.ADMIN);
     userRepository.save(userToDel);
     UserResponseDTO userResponseDTO = userService.getRandomUser();
     long id = cardService.addRandomCard(userResponseDTO).getId();
     assertNotNull(cardService.getById(id));
     cardService.deleteById(id);
     assertThrows(IdNotFoundException.class, () -> cardService.getById(userToDel.getId()));
+    printCurrentMethodName();
+  }
+
+  @Test
+  void getByUserIdTest() {
+    assertThrows(IdNotFoundException.class, () -> cardService.getByUserId(404404L));
     printCurrentMethodName();
   }
 

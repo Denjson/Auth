@@ -14,7 +14,9 @@ public interface CardRepository extends JpaRepository<Card, Long> {
 
   Optional<List<Card>> findByIdIn(Set<Long> ids);
 
+  Optional<List<Card>> findByUserId(Long userId);
+
   Optional<Card> findTopByOrderByIdDesc();
 
-  Optional<Card> getByNumber(Integer number);
+  Optional<Card> getByNumber(Long number);
 }

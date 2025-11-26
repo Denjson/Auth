@@ -40,6 +40,10 @@ public abstract class AbstractIntegrationTest {
     registry.add("spring.data.redis.port", () -> redis.getMappedPort(6379));
     System.out.println("_____Redis Host: " + redis.getHost());
     System.out.println("_____Redis Port 6379 Mapped to: " + redis.getMappedPort(6379));
+    System.out.println("_____Postgres JdbcUrl: " + postgres.getJdbcUrl());
+    System.out.println("_____Postgres DatabaseName: " + postgres.getDatabaseName());
+    System.out.println("_____Postgres Password: " + postgres.getPassword());
+    System.out.println("_____Postgres Username: " + postgres.getUsername());
   }
 
   @BeforeAll

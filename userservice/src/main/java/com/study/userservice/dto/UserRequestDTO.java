@@ -9,10 +9,12 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @RedisHash("users")
+@Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,7 +30,7 @@ public class UserRequestDTO implements Serializable {
 
   private String surname;
 
-  private LocalDateTime birth_date;
+  private LocalDateTime birthDate;
 
   @NotEmpty(message = "Email address can not be a null or empty")
   @Email(message = "Email address should be a valid value")

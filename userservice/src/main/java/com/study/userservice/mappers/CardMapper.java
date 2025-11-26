@@ -1,5 +1,6 @@
 package com.study.userservice.mappers;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,10 +19,10 @@ public class CardMapper {
     }
     return new CardResponseDTO(
         card.getId(),
-        card.getUser_id(),
+        card.getUserId(),
         card.getNumber(),
         card.getHolder(),
-        card.getExpiration_date(),
+        card.getExpirationDate(),
         card.isActive());
   }
 
@@ -35,11 +36,15 @@ public class CardMapper {
     }
     Card card = new Card();
     card.setId(cardRequestDTO.getId());
-    card.setUser_id(cardRequestDTO.getUser_id());
+    card.setUserId(cardRequestDTO.getUserId());
     card.setNumber(cardRequestDTO.getNumber());
     card.setHolder(cardRequestDTO.getHolder());
-    card.setExpiration_date(cardRequestDTO.getExpiration_date());
-    card.setActive(cardRequestDTO.isActive());
+    card.setExpirationDate(cardRequestDTO.getExpirationDate());
+    if (cardRequestDTO.getExpirationDate().compareTo(LocalDateTime.now()) > 0) {
+      card.setActive(cardRequestDTO.isActive());
+    } else {
+      card.setActive(!cardRequestDTO.isActive());
+    }
     return card;
   }
 

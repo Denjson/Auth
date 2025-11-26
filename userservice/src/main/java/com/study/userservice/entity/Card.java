@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "card_info", schema = "den_schema")
+@Table(name = "payment_cards", schema = "den_schema")
 public class Card {
 
   @Id
@@ -25,16 +25,16 @@ public class Card {
   private Long id;
 
   @Column(name = "user_id")
-  private Long user_id;
+  private Long userId;
 
   @Column(name = "number")
-  private Integer number;
+  private Long number;
 
   @Column(name = "holder")
   private String holder;
 
   @Column(name = "expiration_date")
-  private LocalDateTime expiration_date;
+  private LocalDateTime expirationDate;
 
   @Column(name = "active")
   private boolean active;

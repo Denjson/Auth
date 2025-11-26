@@ -19,13 +19,13 @@ public class CardResponseDTO implements Serializable {
 
   private Long id;
 
-  private Long user_id;
+  private Long userId;
 
-  private Integer number;
+  private Long number;
 
   private String holder;
 
-  private LocalDateTime expiration_date;
+  private LocalDateTime expirationDate;
 
   private boolean active;
 }

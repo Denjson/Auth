@@ -23,7 +23,7 @@ public class UserResponseDTO implements Serializable {
 
   private String surname;
 
-  private LocalDateTime birth_date;
+  private LocalDateTime birthDate;
 
   private String email;
 

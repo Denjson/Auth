@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
+import com.study.userservice.auth.Role;
 import com.study.userservice.dto.UserRequestDTO;
 import com.study.userservice.dto.UserResponseDTO;
 import com.study.userservice.entity.User;
@@ -20,7 +21,7 @@ public class UserMapper {
         user.getId(),
         user.getName(),
         user.getSurname(),
-        user.getBirth_date(),
+        user.getBirthDate(),
         user.getEmail(),
         user.isActive());
   }
@@ -37,9 +38,10 @@ public class UserMapper {
     user.setId(userRequestDto.getId());
     user.setName(userRequestDto.getName());
     user.setSurname(userRequestDto.getSurname());
-    user.setBirth_date(userRequestDto.getBirth_date());
+    user.setBirthDate(userRequestDto.getBirthDate());
     user.setEmail(userRequestDto.getEmail());
     user.setActive(userRequestDto.isActive());
+    user.setRole(Role.USER);
     return user;
   }
 

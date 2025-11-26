@@ -22,16 +22,16 @@ public class CardRequestDTO implements Serializable {
   private Long id;
 
   @NotEmpty(message = "User ID can not be a null or empty")
-  private Long user_id;
+  private Long userId;
 
   @NotEmpty(message = "Card can not be a null or empty")
   @Size(min = 6, max = 16, message = "Card number should be of exact size")
-  private Integer number;
+  private Long number;
 
   @NotEmpty(message = "Holder name can not be a null or empty")
   private String holder;
 
-  private LocalDateTime expiration_date;
+  private LocalDateTime expirationDate;
 
   private boolean active;
 }

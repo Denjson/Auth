@@ -3,9 +3,9 @@ package com.study.userservice.service.interfaces;
 import java.util.List;
 import java.util.Set;
 
-import com.study.userservice.auditing.UserHistory;
 import com.study.userservice.dto.UserRequestDTO;
 import com.study.userservice.dto.UserResponseDTO;
+import com.study.userservice.entity.UserHistory;
 
 public interface UserService {
 
@@ -23,7 +23,7 @@ public interface UserService {
 
   public UserResponseDTO deleteById(Long id);
 
-  public List<UserResponseDTO> getAllUsers();
+  public List<UserResponseDTO> getAllUsers(Integer page, Integer itemsPerPage);
 
   public UserResponseDTO getUserLast();
 
@@ -38,4 +38,10 @@ public interface UserService {
   public List<UserResponseDTO> findByJPQL(String lastname);
 
   public List<UserHistory> getUserLog();
+
+  public void addThreeTestUsers();
+
+  public UserResponseDTO changeActive(Long id);
+
+  public List<UserResponseDTO> getNamesContainsText(String keyword);
 }

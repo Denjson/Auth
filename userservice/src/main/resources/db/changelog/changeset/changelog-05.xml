@@ -14,10 +14,10 @@
     
     <changeSet  id="1"  author="denrod" >
         <createTable  tableName="userhistory" schemaName="den_schema">  
-            <column  name="id"  type="int"  autoIncrement="true">  
+            <column  name="id"  type="bigint"  autoIncrement="true">  
                 <constraints  primaryKey="true"  nullable="false"/>
              </column>  
-            <column  name="user_id"  type="int"/>  
+            <column  name="user_id"  type="bigint"/>  
             <column  name="user_content"  type="varchar(255)"/>
             <column  name="modified_by"  type="varchar(25)"/>    
             <column  name="modified_date"  type="date"/>
