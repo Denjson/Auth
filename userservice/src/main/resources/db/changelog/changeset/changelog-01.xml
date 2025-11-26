@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>	
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+        http://www.liquibase.org/xml/ns/pro
+        http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd">
+
+    <changeSet id="1" author="denrod">
+        <sql>
+            CREATE SCHEMA IF NOT EXISTS den_schema;
+        </sql>
+    </changeSet>
+    
+    <changeSet  id="2"  author="denrod" >
+        <createTable  tableName="users" schemaName="den_schema">  
+            <column  name="id"  type="int"  autoIncrement="true">  
+                <constraints  primaryKey="true"  nullable="false"/>
+             </column>  
+            <column  name="name"  type="varchar(15)"/>  
+            <column  name="surname"  type="varchar(20)">  
+                <constraints  nullable="false"/>  
+            </column>  
+            <column  name="birth_date"  type="date"/>
+  	    <column  name="email"  type="varchar(20)"/> 
+  	    <column  name="active"  type="BOOLEAN"/>
+        </createTable> 
+    </changeSet>  
+</databaseChangeLog>
