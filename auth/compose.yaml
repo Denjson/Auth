@@ -1,0 +1,31 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres-auth
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: rdp
+      POSTGRES_DB: postgres
+      volumes:
+         postgres_data:/var/lib/postgres
+    ports:
+    - "5490:5432"
+
+  app:
+    container_name: auth-service
+    build: . # Or specify an image if you're not building locally
+    ports:
+      - "8090:8090"
+    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/my_db
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: postgres
+      DB_USER: postgres
+      DB_PASSWORD: rdp
+    depends_on:
+      postgres:
+        condition: service_started
+
+volumes:
+    postgres_data:

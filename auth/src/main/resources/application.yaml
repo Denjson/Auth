@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: auth
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5490}/${DB_NAME:postgres}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:rdp}
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database: postgresql
+
+server:
+  port: 8090
+#application:
+#  security:
+#    jwt:
+#      secret-key: U29tZXRoaW5nLXN0YXJ0cy1vbi10aW1lLWFuZC1uZXZlci1jb21lcy1iYWNr
+#      expiration: 86400000 # a day
+#      refresh-token:
+#        expiration: 604800000 # 7 days
